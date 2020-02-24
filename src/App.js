@@ -9,6 +9,9 @@ import {
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import theme from './theme'
 import Loading from './components/Loading'
+import API from '@aws-amplify/api';
+import awsconfig from './aws-exports';
+API.configure(awsconfig);
 
 class App extends React.Component {
     state =  {

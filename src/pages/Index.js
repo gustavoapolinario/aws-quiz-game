@@ -15,6 +15,8 @@ import Typography from '@material-ui/core/Typography';
 import Navbar from '../components/Navbar';
 import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
+import API, { graphqlOperation } from '@aws-amplify/api';
+import { nextQuestions } from '../graphql-custom/queries';
 
 const styles = theme => ({
 	main: {
@@ -67,6 +69,13 @@ class Index extends React.Component {
 			],
 			explaination: 'The doc say that. Believe'
 		},
+	}
+	componentDidMount() {
+		this.loadQuestion()
+	}
+	async loadQuestion() {
+		const questionData = await API.graphql(graphqlOperation(nextQuestions));
+		console.log(questionData.data.listQuestions.items)
 	}
 
 	handleChange = event => {

@@ -1,0 +1,14 @@
+{
+    "master": {
+        "awscloudformation": {
+            "AuthRoleName": "aws-quiz-game-master-20200224151821-authRole",
+            "UnauthRoleArn": "arn:aws:iam::153149144027:role/aws-quiz-game-master-20200224151821-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::153149144027:role/aws-quiz-game-master-20200224151821-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "aws-quiz-game-master-20200224151821-deployment",
+            "UnauthRoleName": "aws-quiz-game-master-20200224151821-unauthRole",
+            "StackName": "aws-quiz-game-master-20200224151821",
+            "StackId": "arn:aws:cloudformation:us-east-1:153149144027:stack/aws-quiz-game-master-20200224151821/0ab31030-5732-11ea-81b9-0ad4194c8c9d"
+        }
+    }
+}

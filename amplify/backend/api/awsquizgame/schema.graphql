@@ -1,0 +1,29 @@
+type Category @model {
+  id: ID!
+  category: String!
+  questions: [Question] @connection(name: "CategoryQuestion")
+}
+
+type Question @model
+@key(name: "ByRand", fields: ["randomNumber"], queryField: "randomQuestion")
+  # @auth(rules: [
+  #   {allow: groups, groups: ["Admin"]}
+  # ])
+{
+  id: ID!
+  question: String!
+  multipleChoice: Boolean!
+  rightAnswer: [String]!
+  randomNumber: Float!
+  explaination: String
+  DocPage: String!
+  DocText: String!
+  timestamp: AWSTimestamp
+  answers: [Answer] @connection(name: "QuestionAnswer")
+  category: Category @connection(name: "CategoryQuestion")
+}
+type Answer @model {
+  id: ID!
+  answer: String!
+  question: Question @connection(name: "QuestionAnswer")
+}
