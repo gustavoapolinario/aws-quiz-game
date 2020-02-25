@@ -8,8 +8,8 @@ import Navbar from '../components/Navbar';
 import API, { graphqlOperation } from '@aws-amplify/api';
 import { getQuestion } from '../graphql/queries';
 import Loading from '../components/Loading';
-import { Paper, Button, Box, TextField, FormControl, FormLabel, Checkbox, FormControlLabel } from '@material-ui/core';
-import { createQuestion, updateQuestion, deleteQuestion, createAnswer, updateAnswer, deleteAnswer } from '../graphql/mutations';
+import { Paper, Button, Box, TextField } from '@material-ui/core';
+import { createQuestion, updateQuestion, createAnswer, updateAnswer } from '../graphql/mutations';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -17,6 +17,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withRouter } from 'react-router-dom'
 import { Link as RouterLink } from 'react-router-dom';
+import QuestionEditAnswer from './QuestionEditAnswer';
 
 
 const styles = theme => ({
@@ -42,13 +43,6 @@ const styles = theme => ({
     input: {
         marginBottom: 20,
     },
-    formControl: {
-        border: '1px dotted #ccc',
-        borderRadius: 30,
-        padding: 20,
-        marginBottom: 20,
-        marginTop: 20,
-    },
 })
 
 
@@ -61,6 +55,8 @@ class QuestionEdit extends React.Component {
             isLoading: props.match.params.id ? true : false,
             isOpenDialog: false,
         }
+        this.handleChangeAnswerName = this.handleChangeAnswerName.bind(this);
+        this.handleChangeCheckboxAnswer = this.handleChangeCheckboxAnswer.bind(this);
     }
 
 	componentDidMount() {
@@ -70,37 +66,53 @@ class QuestionEdit extends React.Component {
 		API.graphql(graphqlOperation(getQuestion, { id: this.state.id }))
 			.then(questionData => {
                 const question = questionData.data.getQuestion
-                console.log(question)
-
-                const answers = question.answers.items.reduce((acc, v, i) => {
-                    acc['answer' + (i+1)  + 'Id'] = v.id
-                    acc['answer' + (i+1)  + 'Name'] = v.answer
-                    acc['answer' + (i+1)  + 'Correct'] = v.correct
-                    return acc
-                }, {})
-                console.log('======= answer ==========')
-                console.log(answers)
-                
-
 
 				this.setState({
-                    questionName: question.question,
-                    questionExplanation: question.explanation,
-                    questionDocPage: question.docPage,
-                    questionDocText: question.docText,
+                    question: {
+                        question: question.question,
+                        explanation: question.explanation,
+                        docPage: question.docPage,
+                        docText: question.docText,
+                        randomNumber: question.randomNumber,
+                    },
+                    answers: question.answers.items,
                     isLoading: false,
-                    ...answers,
                 })
 			})
 			.catch(err => {
 				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
+				alert('Sorry, error to load the question. Try reload your page')
 			})
     }
 
-    handleChangeCheckbox = name => event => {
-        this.setState({ [name]: event.target.checked });
-      }
+    handleChangeCheckboxQuestion = event => {
+        const {name, value} = event.target
+        this.setState(state => ({
+            question: {
+                ...state.question,
+                [name]: value,
+            }
+        }))
+    }
+
+    handleChangeCheckboxAnswer = index => event => {
+        const answer = this.state.answers.map((v, k) => {
+            let result = { ...v }
+            if( k === index )
+                result.correct = event.target.checked
+            return result
+        })
+        this.setState({ answers: answer })
+    }
+    handleChangeAnswerName = index => event => {
+        const answer = this.state.answers.map((v, k) => {
+            let result = { ...v }
+            if( k === index )
+                result.answer = event.target.value
+            return result
+        })
+        this.setState({ answers: answer })
+    }
     
     
     handleChange = event => {
@@ -124,133 +136,50 @@ class QuestionEdit extends React.Component {
         const action = this.state.id ? updateQuestion : createQuestion
 
         const input = {
+            ...this.state.question,
             id: this.state.id,
-            question: this.state.questionName,
-            explanation: this.state.questionExplanation,
-            docPage: this.state.questionDocPage,
-            docText:this.state.questionDocText,
-            randomNumber: Math.floor(Math.random() * 100) + 1,
+            randomNumber: this.state.question.randomNumber || Math.floor(Math.random() * 100) + 1,
             questionRandomQuestionId: "All",
         }
-        console.log(input)
 
 		API.graphql(graphqlOperation(action, { input: input }))
 			.then(questionData => {
-                console.log(questionData)
-                const id = questionData.data.createQuestion ? questionData.data.createQuestion.id : questionData.data.updateQuestion.id
 				this.setState({
-                    id: id,
+                    id: questionData.data.createQuestion ? questionData.data.createQuestion.id : questionData.data.updateQuestion.id,
                 })
-                this.saveAnswer()
+                this.saveAllAnswers()
 			})
 			.catch(err => {
 				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
+				alert('Sorry, error to save question. Try reload your page')
 			})
     }
 
-    saveAnswer = async _ => {
-        const action = this.state.answer1Id ? updateAnswer : createAnswer
-
-        const input = {
-            id: this.state.answer1Id,
-            answer: this.state.answer1Name,
-            correct: this.state.answer1Correct ? true : false,
-            answerQuestionId: this.state.id,
-        }
-        console.log(input)
-
-		API.graphql(graphqlOperation(action, { input: input }))
-			.then(questionData => {
-                console.log(questionData)
-                const answer1Id = questionData.data.createAnswer ? questionData.data.createAnswer.id : questionData.data.updateAnswer.id
-				this.setState({
-                    answer1Id: answer1Id,
-                })
-                this.saveAnswer2()
-			})
-			.catch(err => {
-				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
-			})
-    }
-
-    saveAnswer2 = async _ => {
-        const action = this.state.answer2Id ? updateAnswer : createAnswer
-
-        const input = {
-            id: this.state.answer2Id,
-            answer: this.state.answer2Name,
-            correct: this.state.answer2Correct ? true : false,
-            answerQuestionId: this.state.id,
-        }
-        console.log(input)
-
-		API.graphql(graphqlOperation(action, { input: input }))
-			.then(questionData => {
-                console.log(questionData)
-                const answer2Id = questionData.data.createAnswer ? questionData.data.createAnswer.id : questionData.data.updateAnswer.id
-				this.setState({
-                    answer2Id: answer2Id,
-                })
-                this.saveAnswer3()
-			})
-			.catch(err => {
-				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
-			})
-    }
-
-    saveAnswer3 = async _ => {
-        const action = this.state.answer3Id ? updateAnswer : createAnswer
-
-        const input = {
-            id: this.state.answer3Id,
-            answer: this.state.answer3Name,
-            correct: this.state.answer3Correct ? true : false,
-            answerQuestionId: this.state.id,
-        }
-        console.log(input)
-
-		API.graphql(graphqlOperation(action, { input: input }))
-			.then(questionData => {
-                console.log(questionData)
-                const answer3Id = questionData.data.createAnswer ? questionData.data.createAnswer.id : questionData.data.updateAnswer.id
-				this.setState({
-                    answer3Id: answer3Id,
-                })
-                this.saveAnswer4()
-			})
-			.catch(err => {
-				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
-			})
-    }
-
-    saveAnswer4 = async _ => {
-        const action = this.state.answer4Id ? updateAnswer : createAnswer
-
-        const input = {
-            id: this.state.answer4Id,
-            answer: this.state.answer4Name,
-            correct: this.state.answer4Correct ? true : false,
-            answerQuestionId: this.state.id,
-        }
-        console.log(input)
-
-		API.graphql(graphqlOperation(action, { input: input }))
-			.then(questionData => {
-                console.log(questionData)
-                const answer4Id = questionData.data.createAnswer ? questionData.data.createAnswer.id : questionData.data.updateAnswer.id
-				this.setState({
-                    answer4Id: answer4Id,
+    saveAllAnswers = async _ => {
+        Promise.all(this.state.answers.map(async v => this.saveAnswer(v)))
+            .then(answers => {
+                this.setState({
+                    answers,
                     isSaving: false,
                     isLoading: false,
                 })
-			})
+            })
+    }
+    saveAnswer = async v => {
+        const action = v.id ? updateAnswer : createAnswer
+        const input = {
+            ...v,
+            answerQuestionId: this.state.id,
+        }
+
+		return API.graphql(graphqlOperation(action, { input: input }))
+			.then(questionData => ({
+                ...v,
+                id: questionData.data.createAnswer ? questionData.data.createAnswer.id : questionData.data.updateAnswer.id,
+			}))
 			.catch(err => {
 				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
+                alert('Sorry, error to save the answer. Try reload your page')
 			})
     }
     
@@ -299,103 +228,33 @@ class QuestionEdit extends React.Component {
                                 Edit Question
                             </Typography>
 
-                            <TextField required name="questionName" label="Question" fullWidth className={classes.input}
-                                defaultValue={this.state.questionName}
-                                onChange={this.handleChange}
+                            <TextField required name="question" label="Question" fullWidth className={classes.input}
+                                defaultValue={this.state.question.question}
+                                onChange={this.handleChangeCheckboxQuestion}
                             />
 
-                            <TextField required name="questionExplanation" label="Explanation" fullWidth className={classes.input}
-                                defaultValue={this.state.questionExplanation}
-                                onChange={this.handleChange}
+                            <TextField required name="explanation" label="Explanation" fullWidth className={classes.input}
+                                defaultValue={this.state.question.explanation}
+                                onChange={this.handleChangeCheckboxQuestion}
                             />
 
-                            <TextField required name="questionDocPage" label="DocPage" fullWidth className={classes.input}
-                                defaultValue={this.state.questionDocPage}
-                                onChange={this.handleChange}
+                            <TextField required name="docPage" label="DocPage" fullWidth className={classes.input}
+                                defaultValue={this.state.question.docPage}
+                                onChange={this.handleChangeCheckboxQuestion}
                             />
 
-                            <TextField required name="questionDocText" label="DocText" fullWidth className={classes.input}
+                            <TextField required name="docText" label="DocText" fullWidth className={classes.input}
                                 multiline rowsMax="4"
-                                defaultValue={this.state.questionDocText}
-                                onChange={this.handleChange}
+                                defaultValue={this.state.question.docText}
+                                onChange={this.handleChangeCheckboxQuestion}
                             />
 
-                            <FormControl fullWidth component="fieldset" variant="outlined" className={classes.formControl}>
-                                <FormLabel component="legend">Answer 1</FormLabel>
-
-                                <TextField required name="answer1Name" label="Answer" fullWidth className={classes.input}
-                                    defaultValue={this.state.answer1Name}
-                                    onChange={this.handleChange}
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox value="true" color="primary"
-                                                name="answer1Correct"
-                                                checked={this.state.answer1Correct ? true : false}
-                                                onChange={this.handleChangeCheckbox('answer1Correct')} />}
-                                    label="Correct Answer?"
-                                />
-                            </FormControl>
-
-                            <FormControl fullWidth component="fieldset" variant="outlined" className={classes.formControl}>
-                                <FormLabel component="legend">Answer 2</FormLabel>
-
-                                <TextField required name="answer2Name" label="Answer" fullWidth className={classes.input}
-                                    defaultValue={this.state.answer2Name}
-                                    onChange={this.handleChange}
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox value="true" color="primary" onChange={this.handleChange}
-                                                name="answer2Correct"
-                                                checked={this.state.answer2Correct ? true : false}
-                                                onChange={this.handleChangeCheckbox('answer2Correct')} />}
-                                    label="Correct Answer?"
-                                />
-                            </FormControl>
-
-                            <FormControl fullWidth component="fieldset" variant="outlined" className={classes.formControl}>
-                                <FormLabel component="legend">Answer 3</FormLabel>
-
-                                <TextField required name="answer3Name" label="Answer" fullWidth className={classes.input}
-                                    defaultValue={this.state.answer3Name}
-                                    onChange={this.handleChange}
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox value="true" color="primary" onChange={this.handleChange}
-                                    name="answer3Correct"
-                                    checked={this.state.answer3Correct ? true : false}
-                                    onChange={this.handleChangeCheckbox('answer3Correct')} />}
-                                    label="Correct Answer?"
-                                />
-                            </FormControl>
-
-                            <FormControl fullWidth component="fieldset" variant="outlined" className={classes.formControl}>
-                                <FormLabel component="legend">Answer 4</FormLabel>
-
-                                <TextField required name="answer4Name" label="Answer" fullWidth className={classes.input}
-                                    defaultValue={this.state.answer4Name}
-                                    onChange={this.handleChange}
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox value="true" color="primary" onChange={this.handleChange}
-                                    name="answer4Correct"
-                                    checked={this.state.answer4Correct ? true : false}
-                                    onChange={this.handleChangeCheckbox('answer4Correct')} />}
-                                    label="Correct Answer?"
-                                />
-                            </FormControl>
-
-
-                            {/* <Box m={1} className={classes.answers}>
-                                Answer 1:
-                                <TextField required name="answer1Name" label="Answer1" fullWidth className={classes.input}
-                                    value={this.state.answer1Name}
-                                    onChange={this.handleChange}
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox value="true" />}
-                                    label="Correct Answer?"
-                                />
-                            </Box> */}
+                            {this.state.answers.map((v, i) => 
+                                <QuestionEditAnswer key={i}
+                                    answer={v} index={i}
+                                    handleChangeAnswerName={this.handleChangeAnswerName}
+                                    handleChangeCheckboxAnswer={this.handleChangeCheckboxAnswer} />
+                            )}
 
                             <Box display="flex">
                                 {this.state.isSaving ?
