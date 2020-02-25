@@ -47,7 +47,7 @@ class Index extends React.Component {
                         </Box>
 
                         <Box display="flex" justifyContent="flex-end" m={1} p={1} bgcolor="background.paper">
-                            <Button variant="contained" color="primary" component={props => <RouterLink to="/question" {...props} />}>Play</Button>
+                            <Button variant="contained" color="primary" component={RouterLink} to="/question">Play</Button>
                         </Box>
                     </CardContent>
                 </Card>

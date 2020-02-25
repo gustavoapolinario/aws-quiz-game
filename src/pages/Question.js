@@ -57,14 +57,11 @@ class Question extends React.Component {
 		let nextQuestion = this.state.nextQuestion || localStorage.getItem("nextQuestion")
 		API.graphql(graphqlOperation(nextQuestions, { nextTokenQuestion: nextQuestion }))
 			.then(questionData => {
-				console.log('===================================')
 				let listRandomQuestions = questionData.data.listRandomQuestions.items[0]
-				console.log(listRandomQuestions)
 				let question = listRandomQuestions.questions.items[0]
 
 				if( !question ) return this.restartQuestion()
 
-				console.log(question)
 				let rightAnswer = question.answers.items.filter(v => v.correct )
 				this.setState({
 					nextQuestion: listRandomQuestions.questions.nextToken,
@@ -76,7 +73,7 @@ class Question extends React.Component {
 			})
 			.catch(err => {
 				console.log(err)
-				//alert('Sorry, error to load nw question. Try reload your page')
+				alert('Sorry, error to load new question. Try reload your page')
 			})
 	}
 	restartQuestion = _ => {
@@ -107,10 +104,6 @@ class Question extends React.Component {
 	}
 	getAnswer = _ => {
 		if( this.state.answer !== '' ) {
-			console.log(this.state.curQuestion.answers.items)
-			console.log(this.state.rightAnswer)
-			console.log(this.state.mutipleChoice)
-			console.log(this.state.rightAnswer === this.state.answer)
 			this.setState({
 				isCorrectAnswer: this.state.rightAnswer === this.state.answer,
 				isAnswered: true,

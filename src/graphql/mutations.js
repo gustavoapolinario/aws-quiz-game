@@ -13,9 +13,9 @@ export const createRandomQuestion = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -35,9 +35,9 @@ export const updateRandomQuestion = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -57,9 +57,9 @@ export const deleteRandomQuestion = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -80,9 +80,9 @@ export const createCategory = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -103,9 +103,9 @@ export const updateCategory = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -126,9 +126,9 @@ export const deleteCategory = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -145,9 +145,9 @@ export const createQuestion = /* GraphQL */ `
       id
       question
       randomNumber
-      explaination
-      DocPage
-      DocText
+      explanation
+      docPage
+      docText
       timestamp
       answers {
         items {
@@ -182,9 +182,9 @@ export const updateQuestion = /* GraphQL */ `
       id
       question
       randomNumber
-      explaination
-      DocPage
-      DocText
+      explanation
+      docPage
+      docText
       timestamp
       answers {
         items {
@@ -219,9 +219,9 @@ export const deleteQuestion = /* GraphQL */ `
       id
       question
       randomNumber
-      explaination
-      DocPage
-      DocText
+      explanation
+      docPage
+      docText
       timestamp
       answers {
         items {
@@ -260,9 +260,9 @@ export const createAnswer = /* GraphQL */ `
         id
         question
         randomNumber
-        explaination
-        DocPage
-        DocText
+        explanation
+        docPage
+        docText
         timestamp
         answers {
           nextToken
@@ -291,9 +291,9 @@ export const updateAnswer = /* GraphQL */ `
         id
         question
         randomNumber
-        explaination
-        DocPage
-        DocText
+        explanation
+        docPage
+        docText
         timestamp
         answers {
           nextToken
@@ -322,9 +322,9 @@ export const deleteAnswer = /* GraphQL */ `
         id
         question
         randomNumber
-        explaination
-        DocPage
-        DocText
+        explanation
+        docPage
+        docText
         timestamp
         answers {
           nextToken

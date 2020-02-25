@@ -17,7 +17,7 @@ query ListRandomQuestions(
             }
           }
           id
-          explaination
+          explanation
           question
         }
         nextToken

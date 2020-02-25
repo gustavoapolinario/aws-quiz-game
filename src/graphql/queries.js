@@ -10,9 +10,9 @@ export const getRandomQuestion = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -47,9 +47,9 @@ export const getCategory = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
         nextToken
@@ -81,9 +81,9 @@ export const getQuestion = /* GraphQL */ `
       id
       question
       randomNumber
-      explaination
-      DocPage
-      DocText
+      explanation
+      docPage
+      docText
       timestamp
       answers {
         items {
@@ -120,9 +120,9 @@ export const listQuestions = /* GraphQL */ `
         id
         question
         randomNumber
-        explaination
-        DocPage
-        DocText
+        explanation
+        docPage
+        docText
         timestamp
         answers {
           nextToken
@@ -149,9 +149,9 @@ export const getAnswer = /* GraphQL */ `
         id
         question
         randomNumber
-        explaination
-        DocPage
-        DocText
+        explanation
+        docPage
+        docText
         timestamp
         answers {
           nextToken
@@ -182,9 +182,9 @@ export const listAnswers = /* GraphQL */ `
           id
           question
           randomNumber
-          explaination
-          DocPage
-          DocText
+          explanation
+          docPage
+          docText
           timestamp
         }
       }

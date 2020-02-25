@@ -18,9 +18,9 @@ type Question @model
   id: ID!
   question: String!
   randomNumber: Float!
-  explaination: String
-  DocPage: String!
-  DocText: String!
+  explanation: String
+  docPage: String!
+  docText: String!
   timestamp: AWSTimestamp
   answers: [Answer] @connection(name: "QuestionAnswer")
   category: Category @connection(name: "CategoryQuestion", sortField: "randomNumber")
