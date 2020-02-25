@@ -6,7 +6,6 @@ query ListRandomQuestions(
 ) {
   listRandomQuestions(filter: $filter, limit: 1, nextToken: $nextToken) {
     items {
-      id
       questions(limit: 1, nextToken: $nextTokenQuestion) {
         items {
           answers {
@@ -23,7 +22,6 @@ query ListRandomQuestions(
         nextToken
       }
     }
-    nextToken
   }
 }
 `;

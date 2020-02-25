@@ -10,7 +10,6 @@ type Category @model {
 }
 
 type Question @model
-# @key(name: "ByRand", fields: ["id", "randomNumber"], queryField: "randomQuestion")
   # @auth(rules: [
   #   {allow: groups, groups: ["Admin"], operations: [create, update, delete]}
   # ])
@@ -32,8 +31,3 @@ type Answer @model {
   correct: Boolean!
   question: Question @connection(name: "QuestionAnswer")
 }
-
-# type Comment @model {
-#   id: ID!
-#   content: String
-# }
