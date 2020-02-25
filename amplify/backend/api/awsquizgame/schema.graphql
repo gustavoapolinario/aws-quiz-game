@@ -1,29 +1,39 @@
+type RandomQuestion @model {
+  id: ID!
+  questions: [Question] @connection(name: "RandomQuestion", sortField: "randomNumber")
+}
+
 type Category @model {
   id: ID!
   category: String!
-  questions: [Question] @connection(name: "CategoryQuestion")
+  questions: [Question] @connection(name: "CategoryQuestion", sortField: "randomNumber")
 }
 
 type Question @model
-@key(name: "ByRand", fields: ["randomNumber"], queryField: "randomQuestion")
+# @key(name: "ByRand", fields: ["id", "randomNumber"], queryField: "randomQuestion")
   # @auth(rules: [
-  #   {allow: groups, groups: ["Admin"]}
+  #   {allow: groups, groups: ["Admin"], operations: [create, update, delete]}
   # ])
 {
   id: ID!
   question: String!
-  multipleChoice: Boolean!
-  rightAnswer: [String]!
   randomNumber: Float!
   explaination: String
   DocPage: String!
   DocText: String!
   timestamp: AWSTimestamp
   answers: [Answer] @connection(name: "QuestionAnswer")
-  category: Category @connection(name: "CategoryQuestion")
+  category: Category @connection(name: "CategoryQuestion", sortField: "randomNumber")
+  randomQuestion: RandomQuestion @connection(name: "RandomQuestion", sortField: "randomNumber")
 }
 type Answer @model {
   id: ID!
   answer: String!
+  correct: Boolean!
   question: Question @connection(name: "QuestionAnswer")
 }
+
+# type Comment @model {
+#   id: ID!
+#   content: String
+# }

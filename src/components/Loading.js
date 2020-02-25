@@ -6,7 +6,6 @@ const styles = theme => ({
     progress: {
         margin: 'auto',
         display: 'block',
-        padding: 50,
     },
 });
 

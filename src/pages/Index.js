@@ -17,6 +17,7 @@ import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
 import API, { graphqlOperation } from '@aws-amplify/api';
 import { nextQuestions } from '../graphql-custom/queries';
+import Loading from '../components/Loading';
 
 const styles = theme => ({
 	main: {
@@ -47,35 +48,53 @@ const styles = theme => ({
 class Index extends React.Component {
 	state = {
 		answer: '',
-		answered: false,
-		curQuestion: {
-			id: 1,
-			title: 'Quem é o mais rápido do universo?',
-			multipleChoice: false,
-			rightAnswer: "3",
-			answers: [
-				{
-					id: "2",
-					title: "Flash é o mais rápido do mundo, não tem como discutir, afinal isso sempre é comentado, do corredor mais rápido do mundo",
-				},
-				{
-					id: "3",
-					title: "SuperMan",
-				},
-				{
-					id: "4",
-					title: "Goku",
-				}
-			],
-			explaination: 'The doc say that. Believe'
-		},
+		isAnswered: false,
 	}
 	componentDidMount() {
 		this.loadQuestion()
 	}
-	async loadQuestion() {
-		const questionData = await API.graphql(graphqlOperation(nextQuestions));
-		console.log(questionData.data.listQuestions.items)
+	loadQuestion = async _ => {
+		console.log('nextQuestion: ' + this.state.nextQuestion)
+		API.graphql(graphqlOperation(nextQuestions, { nextTokenQuestion: this.state.nextQuestion }))
+			.then(questionData => {
+				console.log('===================================')
+				let listRandomQuestions = questionData.data.listRandomQuestions.items[0]
+				console.log(listRandomQuestions)
+				let question = listRandomQuestions.questions.items[0]
+
+				if( !question ) return this.restartQuestion()
+
+				console.log(question)
+				let rightAnswer = question.answers.items.filter(v => v.correct )
+				this.setState({
+					nextQuestion: listRandomQuestions.questions.nextToken,
+					curQuestion: question,
+					rightAnswer: rightAnswer.reduce((acc, v) => acc + ',' + v.id, '').substr(1),
+					mutipleChoice: rightAnswer.length > 1,
+				})
+			})
+			.catch(err => {
+				console.log(err)
+				//alert('Sorry, error to load nw question. Try reload your page')
+			})
+	}
+	restartQuestion = _ => {
+		this.setState({
+			nextQuestion: null,
+		})
+		this.loadQuestion()
+	}
+	stopQuiz = _ => {
+		alert('close the window')
+	}
+	nextQuestion = _ => {
+		this.setState({
+			curQuestion: null,
+			rightAnswer: null,
+			answer: '',
+			isAnswered: false,
+		})
+		this.loadQuestion()
 	}
 
 	handleChange = event => {
@@ -86,9 +105,13 @@ class Index extends React.Component {
 	}
 	getAnswer = _ => {
 		if( this.state.answer !== '' ) {
+			console.log(this.state.curQuestion.answers.items)
+			console.log(this.state.rightAnswer)
+			console.log(this.state.mutipleChoice)
+			console.log(this.state.rightAnswer === this.state.answer)
 			this.setState({
-				rightAnswer: this.state.curQuestion.rightAnswer === this.state.answer,
-				answered: true,
+				isCorrectAnswer: this.state.rightAnswer === this.state.answer,
+				isAnswered: true,
 			})
 		}
 	}
@@ -100,42 +123,48 @@ class Index extends React.Component {
 			<Container component='main' className={classes.main}>
 				<CssBaseline />
 				<Navbar />
-				<Card className={classes.root}>
-					<CardContent>
-						<Box textAlign="center">
-							<Typography component="h1" variant="h4" gutterBottom>
-								{this.state.curQuestion.title}
-							</Typography>
-						</Box>
-						<Divider className={classes.divider} />
 
-						<RadioGroup defaultValue={this.state.answer} aria-label="answer" name="answer" value={this.state.answer} onChange={this.handleChange}>
-							{this.state.curQuestion.answers.map(v =>
-								<FormControlLabel className={classes.answerOption} key={v.id} value={v.id} control={<Radio color="primary" />} label={v.title} />
-							)}
-						</RadioGroup>
-					
-						{this.state.answered ?
-							<>
-								<Alert severity={this.state.rightAnswer ? 'error' : 'success' }>
-									<AlertTitle>{this.state.rightAnswer ? 'Wrong Answer' : 'Correct' }</AlertTitle>
-									{this.state.curQuestion.explaination}
-								</Alert>
-
-								<Box display="flex" justifyContent="flex-end" m={1} p={1} bgcolor="background.paper">
-									<Box flexGrow={1}>
-										<Button variant="contained" color="secondary" onClick={this.getAnswer}>Stop</Button>
-									</Box>
-									<Button variant="contained" color="primary" onClick={this.getAnswer}>Next Question</Button>
-								</Box>
-							</>
-						:
-							<Box display="flex" justifyContent="flex-end" m={1} p={1} bgcolor="background.paper">
-								<Button variant="contained" color="primary" onClick={this.getAnswer}>Continue</Button>
+				{!this.state.curQuestion ?
+					<Loading/>
+				: 
+					<Card className={classes.root}>
+						<CardContent>
+							<Box textAlign="center">
+								<Typography component="h1" variant="h4" gutterBottom>
+									{this.state.curQuestion.question}
+								</Typography>
 							</Box>
-						}
-					</CardContent>
-				</Card>
+							<Divider className={classes.divider} />
+
+							<RadioGroup aria-label="answer" name="answer" value={this.state.answer} onChange={this.handleChange}>
+								{this.state.curQuestion.answers.items.map(v =>
+									<FormControlLabel className={classes.answerOption} control={<Radio color="primary" />}
+										key={v.id} value={v.id} label={v.answer} disabled={this.state.isAnswered} />
+								)}
+							</RadioGroup>
+						
+							{this.state.isAnswered ?
+								<>
+									<Alert severity={this.state.isCorrectAnswer ? 'success' : 'error' }>
+										<AlertTitle>{this.state.isCorrectAnswer ? 'Correct' : 'Wrong Answer' }</AlertTitle>
+										{this.state.curQuestion.explaination}
+									</Alert>
+
+									<Box display="flex" justifyContent="flex-end" m={1} p={1} bgcolor="background.paper">
+										<Box flexGrow={1}>
+											<Button variant="contained" color="secondary" onClick={this.stopQuiz}>Stop</Button>
+										</Box>
+										<Button variant="contained" color="primary" onClick={this.nextQuestion}>Next Question</Button>
+									</Box>
+								</>
+							:
+								<Box display="flex" justifyContent="flex-end" m={1} p={1} bgcolor="background.paper">
+									<Button variant="contained" color="primary" onClick={this.getAnswer}>Continue</Button>
+								</Box>
+							}
+						</CardContent>
+					</Card>
+				}
 			</Container>
 		);
 
