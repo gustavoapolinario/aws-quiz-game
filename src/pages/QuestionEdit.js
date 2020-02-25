@@ -54,6 +54,8 @@ class QuestionEdit extends React.Component {
             id: props.match.params.id,
             isLoading: props.match.params.id ? true : false,
             isOpenDialog: false,
+            question: {},
+            answers: [{},{},{},{}],
         }
         this.handleChangeAnswerName = this.handleChangeAnswerName.bind(this);
         this.handleChangeCheckboxAnswer = this.handleChangeCheckboxAnswer.bind(this);
