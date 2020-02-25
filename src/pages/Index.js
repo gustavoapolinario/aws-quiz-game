@@ -54,8 +54,8 @@ class Index extends React.Component {
 		this.loadQuestion()
 	}
 	loadQuestion = async _ => {
-		console.log('nextQuestion: ' + this.state.nextQuestion)
-		API.graphql(graphqlOperation(nextQuestions, { nextTokenQuestion: this.state.nextQuestion }))
+		let nextQuestion = this.state.nextQuestion || localStorage.getItem("nextQuestion")
+		API.graphql(graphqlOperation(nextQuestions, { nextTokenQuestion: nextQuestion }))
 			.then(questionData => {
 				console.log('===================================')
 				let listRandomQuestions = questionData.data.listRandomQuestions.items[0]
@@ -72,6 +72,7 @@ class Index extends React.Component {
 					rightAnswer: rightAnswer.reduce((acc, v) => acc + ',' + v.id, '').substr(1),
 					mutipleChoice: rightAnswer.length > 1,
 				})
+				localStorage.setItem("nextQuestion", listRandomQuestions.questions.nextToken)
 			})
 			.catch(err => {
 				console.log(err)
@@ -82,6 +83,7 @@ class Index extends React.Component {
 		this.setState({
 			nextQuestion: null,
 		})
+		localStorage.removeItem("nextQuestion")
 		this.loadQuestion()
 	}
 	stopQuiz = _ => {
