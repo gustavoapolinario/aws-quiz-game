@@ -45,7 +45,7 @@ const styles = theme => ({
 
 
 
-class Index extends React.Component {
+class Question extends React.Component {
 	state = {
 		answer: '',
 		isAnswered: false,
@@ -173,8 +173,8 @@ class Index extends React.Component {
 	}
 }
 
-Index.propTypes = {
+Question.propTypes = {
     classes: PropTypes.object.isRequired,
 };
-export default withStyles(styles)(Index);
+export default withStyles(styles)(Question);
 

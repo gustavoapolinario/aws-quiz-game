@@ -1,5 +1,6 @@
 import React from 'react';
 import Index from './pages/Index';
+import Question from './pages/Question';
 import Erro404 from './pages/Erro404';
 import {
     Switch,
@@ -28,6 +29,7 @@ class App extends React.Component {
                 <BrowserRouter>
                     <Switch>
                         <Route path="/" exact component={Index} />
+                        <Route path="/question" exact component={Question} />
                         
                         <Route path='*' component={Erro404} />
                     </Switch>
